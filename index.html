@@ -736,6 +736,8 @@ const ANON_KEY     = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const SERVICE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtoaWZla2d1b2ZiaHJ6cnNnbWZwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODE2NTM5NywiZXhwIjoyMDkzNzQxMzk3fQ.hSlKch2HVma7_f_Z8znFLZA2BMw-7OSpO-8b8Wxcq84';
 const ZAPI_BASE    = 'https://api.z-api.io/instances/3F05EF1A955C128F03755EC66E320A44/token/E6B818D9A29C70091C98BDC3';
 const GROUP_ID     = '120363039444346213-group';
+const TEST_PHONE   = '5541996976577';
+const TEST_MODE    = true; // true = envia pro seu número | false = envia pro grupo
 
 const sb      = supabase.createClient(SUPABASE_URL, ANON_KEY);
 const sbAdmin = supabase.createClient(SUPABASE_URL, SERVICE_KEY);
@@ -944,7 +946,7 @@ async function enviarFicha() {
     const res = await fetch(`${ZAPI_BASE}/send-text`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone: GROUP_ID, message: buildMessage() })
+      body: JSON.stringify({ phone: TEST_MODE ? TEST_PHONE : GROUP_ID, message: buildMessage() })
     });
     const data = await res.json();
     if (res.ok && (data.zaapId || data.messageId || data.id)) {
