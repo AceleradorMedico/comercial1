@@ -3,7 +3,7 @@
 ## Estrutura do Projeto
 
 ```
-comercial/
+comercial1/
 ├── index.html       ← App completo (single file)
 └── README.md        ← Este arquivo
 ```
