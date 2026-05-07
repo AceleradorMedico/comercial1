@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head> 
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha de Fechamento · GAM</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --gold: #F5A623;
+    --gold-dark: #D4901E;
+    --black: #0A0A0A;
+    --surface: #111111;
+    --surface2: #1A1A1A;
+    --border: #2A2A2A;
+    --text: #F0F0F0;
+    --muted: #888;
+    --success: #2ECC71;
+    --error: #E74C3C;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Barlow', sans-serif;
+    background: var(--black);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .screen { display: none; width: 100%; }
+  .screen.active { display: flex; }
+
+  /* LOGIN */
+  #screen-login {
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .login-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 48px 40px;
+    width: 100%;
+    max-width: 380px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .login-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .login-logo svg { width: 48px; height: 48px; }
+
+  .login-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  .login-title span { color: var(--gold); }
+
+  .login-sub {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .login-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border: 1px solid var(--border);
+  }
+
+  .login-tab {
+    padding: 10px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+    border: none;
+    font-family: 'Barlow', sans-serif;
+  }
+
+  .login-tab.active { background: var(--gold); color: var(--black); }
+
+  .login-field { display: flex; flex-direction: column; gap: 6px; }
+
+  .login-field label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  input, select, textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 15px;
+    padding: 12px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+    -webkit-appearance: none;
+  }
+
+  input:focus, select:focus, textarea:focus { border-color: var(--gold); }
+
+  select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+  }
+
+  textarea { resize: vertical; min-height: 100px; line-height: 1.5; }
+
+  .btn-primary {
+    background: var(--gold);
+    color: var(--black);
+    border: none;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    width: 100%;
+  }
+
+  .btn-primary:hover { background: var(--gold-dark); }
+  .btn-primary:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Barlow', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+  .btn-danger {
+    background: transparent;
+    border: 1px solid var(--error);
+    color: var(--error);
+    font-family: 'Barlow', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-danger:hover { background: var(--error); color: white; }
+
+  .msg-error { font-size: 13px; color: var(--error); text-align: center; display: none; }
+
+  /* HEADER */
+  #app-header {
+    width: 100%;
+    background: var(--surface);
+    border-bottom: 2px solid var(--gold);
+    padding: 16px 32px;
+    display: none;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  #app-header.visible { display: flex; }
+  .logo-mark { width: 36px; height: 36px; }
+
+  #app-header h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  #app-header h1 span { color: var(--gold); }
+  .header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+  .user-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* CLOSER FORM */
+  #screen-closer { flex-direction: column; align-items: center; }
+
+  main { width: 100%; max-width: 680px; padding: 40px 24px 80px; }
+
+  .section-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field.full { grid-column: 1 / -1; }
+
+  label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  label .req { color: var(--gold); margin-left: 2px; }
+
+  .produto-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .produto-option { display: none; }
+
+  .produto-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .produto-option:checked + .produto-label {
+    border-color: var(--gold);
+    background: rgba(245,166,35,0.08);
+    color: var(--gold);
+  }
+
+  .produto-label:hover { border-color: var(--gold); color: var(--gold); }
+
+  .btn-submit {
+    width: 100%;
+    background: var(--gold);
+    color: var(--black);
+    border: none;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 18px;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 8px;
+  }
+
+  .btn-submit:hover { background: var(--gold-dark); }
+  .btn-submit:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+
+  /* ADMIN */
+  #screen-admin { flex-direction: column; align-items: center; }
+  .admin-main { width: 100%; max-width: 760px; padding: 40px 24px 80px; }
+
+  .admin-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+  }
+
+  .admin-topbar h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .closer-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 32px; }
+
+  .closer-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .closer-info { flex: 1; }
+  .closer-item-name { font-weight: 600; font-size: 15px; }
+  .closer-item-email { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .closer-item-actions { display: flex; gap: 8px; }
+
+  .add-form {
+    background: var(--surface);
+    border: 1px solid var(--gold);
+    padding: 24px;
+  }
+
+  .add-form h3 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+
+  .add-grid { display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: end; }
+
+  .empty-state { text-align: center; color: var(--muted); padding: 40px; font-size: 14px; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 32px;
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .modal h3 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+
+  /* TOAST */
+  #toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 14px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: transform 0.3s ease;
+    z-index: 999;
+    white-space: nowrap;
+  }
+
+  #toast.show { transform: translateX(-50%) translateY(0); }
+  #toast.success { border-color: var(--success); color: var(--success); }
+  #toast.error { border-color: var(--error); color: var(--error); }
+
+  @media (max-width: 520px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .field.full { grid-column: 1; }
+    .form-card { padding: 20px 16px; }
+    #app-header { padding: 14px 16px; }
+    .add-grid { grid-template-columns: 1fr; }
+    .login-box { padding: 32px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="screen-login" class="screen active">
+  <div class="login-box">
+    <div class="login-logo">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="50,5 90,85 70,85 50,45 30,85 10,85" fill="#F5A623"/>
+        <polygon points="30,85 10,85 25,85 35,62" fill="#0A0A0A" opacity="0.4"/>
+      </svg>
+      <div>
+        <div class="login-title">Acelerador <span>Médico</span></div>
+        <div class="login-sub">Comercial GAM</div>
+      </div>
+    </div>
+
+    <div class="login-tabs">
+      <button class="login-tab active" onclick="setTab('closer')">Vendedor</button>
+      <button class="login-tab" onclick="setTab('admin')">Admin</button>
+    </div>
+
+    <!-- CLOSER: só e-mail -->
+    <div id="tab-closer">
+      <div class="login-field" style="margin-bottom:16px">
+        <label>E-mail</label>
+        <input type="email" id="closer-email" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')loginCloser()">
+      </div>
+      <div class="msg-error" id="closer-error">E-mail não encontrado.</div>
+      <button class="btn-primary" onclick="loginCloser()">Entrar</button>
+    </div>
+
+    <!-- ADMIN: e-mail + senha -->
+    <div id="tab-admin" style="display:none">
+      <div class="login-field" style="margin-bottom:16px">
+        <label>E-mail</label>
+        <input type="email" id="admin-email" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')loginAdmin()">
+      </div>
+      <div class="login-field" style="margin-bottom:16px">
+        <label>Senha</label>
+        <input type="password" id="admin-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')loginAdmin()">
+      </div>
+      <div class="msg-error" id="admin-error">E-mail ou senha incorretos.</div>
+      <button class="btn-primary" onclick="loginAdmin()">Entrar como Admin</button>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header id="app-header">
+  <svg class="logo-mark" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="50,5 90,85 70,85 50,45 30,85 10,85" fill="#F5A623"/>
+    <polygon points="30,85 10,85 25,85 35,62" fill="#0A0A0A" opacity="0.4"/>
+  </svg>
+  <h1>Comercial <span>GAM</span></h1>
+  <div class="header-right">
+    <span class="user-name" id="header-user"></span>
+    <button class="btn-secondary" onclick="doLogout()">Sair</button>
+  </div>
+</header>
+
+<!-- CLOSER FORM -->
+<div id="screen-closer" class="screen">
+  <main>
+    <div class="section-title">Dados do Lead</div>
+    <div class="form-card">
+      <div class="form-grid">
+        <div class="field full">
+          <label>Nome Completo <span class="req">*</span></label>
+          <input type="text" id="f-nome" placeholder="Nome completo do lead">
+        </div>
+        <div class="field">
+          <label>Data de Nascimento <span class="req">*</span></label>
+          <input type="date" id="f-nascimento">
+        </div>
+        <div class="field">
+          <label>CPF <span class="req">*</span></label>
+          <input type="text" id="f-cpf" placeholder="000.000.000-00" maxlength="14" oninput="maskCPF(this)">
+        </div>
+        <div class="field">
+          <label>Especialidade <span class="req">*</span></label>
+          <input type="text" id="f-especialidade" placeholder="Ex: Dermatologia">
+        </div>
+        <div class="field">
+          <label>Instagram</label>
+          <input type="text" id="f-instagram" placeholder="@usuario">
+        </div>
+        <div class="field">
+          <label>Faturamento <span class="req">*</span></label>
+          <input type="text" id="f-faturamento" placeholder="Ex: R$ 30.000/mês">
+        </div>
+        <div class="field full">
+          <label>E-mail <span class="req">*</span></label>
+          <input type="email" id="f-email" placeholder="email@exemplo.com">
+        </div>
+        <div class="field">
+          <label>Estado Civil</label>
+          <select id="f-estadocivil">
+            <option value="">Selecione...</option>
+            <option>Solteiro(a)</option>
+            <option>Casado(a)</option>
+            <option>Divorciado(a)</option>
+            <option>Viúvo(a)</option>
+            <option>União Estável</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>CEP</label>
+          <input type="text" id="f-cep" placeholder="00000-000" maxlength="9" oninput="maskCEP(this)" onblur="buscaCEP(this.value)">
+        </div>
+        <div class="field full">
+          <label>Endereço Completo <span class="req">*</span></label>
+          <input type="text" id="f-endereco" placeholder="Rua, número, bairro, cidade - UF">
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Produto</div>
+    <div class="form-card">
+      <div class="produto-grid">
+        <div><input type="radio" name="produto" id="p-master" value="Master" class="produto-option"><label for="p-master" class="produto-label">Master</label></div>
+        <div><input type="radio" name="produto" id="p-mentoria" value="Mentoria" class="produto-option"><label for="p-mentoria" class="produto-label">Mentoria</label></div>
+        <div><input type="radio" name="produto" id="p-winners" value="Winners" class="produto-option"><label for="p-winners" class="produto-label">Winners</label></div>
+        <div><input type="radio" name="produto" id="p-esp" value="Especialidades" class="produto-option"><label for="p-esp" class="produto-label">Especialidades</label></div>
+      </div>
+    </div>
+
+    <div class="section-title">Informações Adicionais</div>
+    <div class="form-card">
+      <div class="field">
+        <label>Observações</label>
+        <textarea id="f-obs" placeholder="Contexto da venda, objeções, pontos relevantes..."></textarea>
+      </div>
+    </div>
+
+    <button class="btn-submit" onclick="enviarFicha()" id="btn-enviar">Enviar Ficha para o Grupo</button>
+  </main>
+</div>
+
+<!-- ADMIN -->
+<div id="screen-admin" class="screen">
+  <div class="admin-main">
+    <div class="admin-topbar">
+      <h2>Vendedores <span style="color:var(--gold)">Cadastrados</span></h2>
+    </div>
+    <div class="closer-list" id="closer-list"><div class="empty-state">Carregando...</div></div>
+    <div class="add-form">
+      <h3>+ Novo Vendedor</h3>
+      <div class="add-grid">
+        <div class="field"><label>Nome</label><input type="text" id="new-nome" placeholder="Nome completo"></div>
+        <div class="field"><label>E-mail</label><input type="email" id="new-email" placeholder="email@exemplo.com"></div>
+        <button class="btn-primary" style="padding:12px 24px;width:auto;font-size:14px" onclick="addCloser()">Adicionar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR -->
+<div class="modal-overlay" id="modal-edit">
+  <div class="modal">
+    <h3>Editar Vendedor</h3>
+    <input type="hidden" id="edit-id">
+    <div class="field" style="margin-bottom:16px">
+      <label>Nome</label>
+      <input type="text" id="edit-nome">
+    </div>
+    <div class="field">
+      <label>E-mail</label>
+      <input type="email" id="edit-email">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" style="font-size:14px;padding:12px" onclick="saveEdit()">Salvar</button>
+      <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://khifekguofbhrzrsgmfp.supabase.co';
+const ANON_KEY     = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtoaWZla2d1b2ZiaHJ6cnNnbWZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxNjUzOTcsImV4cCI6MjA5Mzc0MTM5N30.hiOkZ7eCGl_E-_SnJpe5JWmz7BeuGQ0n8-SVQCcc1BA';
+const SERVICE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtoaWZla2d1b2ZiaHJ6cnNnbWZwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODE2NTM5NywiZXhwIjoyMDkzNzQxMzk3fQ.hSlKch2HVma7_f_Z8znFLZA2BMw-7OSpO-8b8Wxcq84';
+const ZAPI_BASE    = 'https://api.z-api.io/instances/3F05EF1A955C128F03755EC66E320A44/token/E6B818D9A29C70091C98BDC3';
+const GROUP_ID     = '120363039444346213-group';
+
+const sb      = supabase.createClient(SUPABASE_URL, ANON_KEY);
+const sbAdmin = supabase.createClient(SUPABASE_URL, SERVICE_KEY);
+
+let currentUser = null;
+
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) enterAdmin(session.user.email);
+}
+
+function setTab(tab) {
+  document.querySelectorAll('.login-tab').forEach((t,i) =>
+    t.classList.toggle('active', (tab==='closer'&&i===0)||(tab==='admin'&&i===1)));
+  document.getElementById('tab-closer').style.display = tab==='closer' ? 'block' : 'none';
+  document.getElementById('tab-admin').style.display  = tab==='admin'  ? 'block' : 'none';
+}
+
+// CLOSER: busca e-mail na tabela, se existir entra
+async function loginCloser() {
+  const email = document.getElementById('closer-email').value.trim().toLowerCase();
+  const err   = document.getElementById('closer-error');
+  if (!email) { err.style.display='block'; return; }
+
+  const { data, error } = await sbAdmin
+    .from('closers')
+    .select('id,nome,email')
+    .eq('email', email)
+    .single();
+
+  if (error || !data) { err.style.display='block'; return; }
+
+  err.style.display = 'none';
+  enterCloser(data.nome);
+}
+
+// ADMIN: Supabase Auth
+async function loginAdmin() {
+  const email = document.getElementById('admin-email').value.trim();
+  const pass  = document.getElementById('admin-pass').value;
+  const err   = document.getElementById('admin-error');
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (error || !data.user) { err.style.display='block'; return; }
+  err.style.display = 'none';
+  enterAdmin(data.user.email);
+}
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+}
+
+function enterCloser(nome) {
+  currentUser = { nome, isAdmin: false };
+  document.getElementById('header-user').textContent = nome;
+  document.getElementById('app-header').classList.add('visible');
+  showScreen('closer');
+}
+
+function enterAdmin(email) {
+  currentUser = { nome: email, isAdmin: true };
+  document.getElementById('header-user').textContent = email;
+  document.getElementById('app-header').classList.add('visible');
+  showScreen('admin');
+  loadCloserList();
+}
+
+async function doLogout() {
+  if (currentUser?.isAdmin) await sb.auth.signOut();
+  currentUser = null;
+  document.getElementById('app-header').classList.remove('visible');
+  showScreen('login');
+  document.getElementById('closer-email').value = '';
+  document.getElementById('admin-pass').value = '';
+  resetForm();
+}
+
+// ADMIN: listar
+async function loadCloserList() {
+  const { data, error } = await sbAdmin.from('closers').select('*').order('nome');
+  const list = document.getElementById('closer-list');
+  if (error) { list.innerHTML = '<div class="empty-state">Erro ao carregar.</div>'; return; }
+  if (!data?.length) { list.innerHTML = '<div class="empty-state">Nenhum vendedor cadastrado.</div>'; return; }
+  list.innerHTML = data.map(c => `
+    <div class="closer-item">
+      <div class="closer-info">
+        <div class="closer-item-name">${c.nome}</div>
+        <div class="closer-item-email">${c.email}</div>
+      </div>
+      <div class="closer-item-actions">
+        <button class="btn-secondary" onclick="openEdit('${c.id}','${c.nome}','${c.email}')">Editar</button>
+        <button class="btn-danger" onclick="deleteCloser('${c.id}','${c.nome}')">Remover</button>
+      </div>
+    </div>`).join('');
+}
+
+// ADMIN: adicionar
+async function addCloser() {
+  const nome  = document.getElementById('new-nome').value.trim();
+  const email = document.getElementById('new-email').value.trim().toLowerCase();
+  if (!nome || !email) return showToast('Preencha nome e e-mail', 'error');
+  const { error } = await sbAdmin.from('closers').insert({ nome, email });
+  if (error) return showToast('Erro: ' + error.message, 'error');
+  showToast(nome + ' adicionado', 'success');
+  document.getElementById('new-nome').value = '';
+  document.getElementById('new-email').value = '';
+  loadCloserList();
+}
+
+// ADMIN: editar
+function openEdit(id, nome, email) {
+  document.getElementById('edit-id').value    = id;
+  document.getElementById('edit-nome').value  = nome;
+  document.getElementById('edit-email').value = email;
+  document.getElementById('modal-edit').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modal-edit').classList.remove('open'); }
+
+async function saveEdit() {
+  const id    = document.getElementById('edit-id').value;
+  const nome  = document.getElementById('edit-nome').value.trim();
+  const email = document.getElementById('edit-email').value.trim().toLowerCase();
+  if (!nome || !email) return showToast('Preencha todos os campos', 'error');
+  const { error } = await sbAdmin.from('closers').update({ nome, email }).eq('id', id);
+  if (error) return showToast('Erro ao salvar', 'error');
+  showToast('Vendedor atualizado', 'success');
+  closeModal(); loadCloserList();
+}
+
+// ADMIN: remover
+async function deleteCloser(id, nome) {
+  if (!confirm('Remover ' + nome + '?')) return;
+  const { error } = await sbAdmin.from('closers').delete().eq('id', id);
+  if (error) return showToast('Erro ao remover', 'error');
+  showToast(nome + ' removido', 'success');
+  loadCloserList();
+}
+
+// FORM
+function resetForm() {
+  ['f-nome','f-nascimento','f-cpf','f-especialidade','f-instagram',
+   'f-faturamento','f-email','f-estadocivil','f-cep','f-endereco','f-obs']
+    .forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+  document.querySelectorAll('input[name="produto"]').forEach(r => r.checked=false);
+}
+
+function maskCPF(el) {
+  let v = el.value.replace(/\D/g,'').slice(0,11);
+  v = v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+  el.value = v;
+}
+
+function maskCEP(el) {
+  let v = el.value.replace(/\D/g,'').slice(0,8);
+  v = v.replace(/(\d{5})(\d)/,'$1-$2');
+  el.value = v;
+}
+
+async function buscaCEP(cep) {
+  const c = cep.replace(/\D/g,'');
+  if (c.length !== 8) return;
+  try {
+    const res = await fetch(`https://viacep.com.br/ws/${c}/json/`);
+    const d = await res.json();
+    if (!d.erro) document.getElementById('f-endereco').value =
+      `${d.logradouro}, ${d.bairro}, ${d.localidade} - ${d.uf}`;
+  } catch(e) {}
+}
+
+function getProduto() {
+  const c = document.querySelector('input[name="produto"]:checked');
+  return c ? c.value : null;
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  const [y,m,day] = d.split('-');
+  return `${day}/${m}/${y}`;
+}
+
+function buildMessage() {
+  const g = id => document.getElementById(id).value.trim();
+  return `🟡 *NOVO FECHAMENTO — ${currentUser.nome.toUpperCase()}*\n\n` +
+    `📌 *Nome completo:* ${g('f-nome')||'—'}\n` +
+    `📌 *Data de nascimento:* ${formatDate(document.getElementById('f-nascimento').value)}\n` +
+    `📌 *CPF:* ${g('f-cpf')||'—'}\n` +
+    `📌 *Especialidade:* ${g('f-especialidade')||'—'}\n` +
+    `📌 *Instagram:* ${g('f-instagram')||'—'}\n` +
+    `📌 *Faturamento:* ${g('f-faturamento')||'—'}\n` +
+    `📌 *E-mail:* ${g('f-email')||'—'}\n` +
+    `📌 *Estado civil:* ${document.getElementById('f-estadocivil').value||'—'}\n` +
+    `📌 *Endereço completo:* ${g('f-endereco')||'—'}\n\n` +
+    `🎯 *Produto:* ${getProduto()||'—'}\n` +
+    (g('f-obs') ? `\n📝 *Informações adicionais:*\n${g('f-obs')}` : '');
+}
+
+function validate() {
+  const req = {
+    'f-nome':'Nome completo','f-nascimento':'Data de nascimento','f-cpf':'CPF',
+    'f-especialidade':'Especialidade','f-faturamento':'Faturamento',
+    'f-email':'E-mail','f-endereco':'Endereço'
+  };
+  for (const [id, label] of Object.entries(req)) {
+    if (!document.getElementById(id).value.trim()) {
+      showToast('Preencha: ' + label, 'error');
+      document.getElementById(id).focus();
+      return false;
+    }
+  }
+  if (!getProduto()) { showToast('Selecione um produto', 'error'); return false; }
+  return true;
+}
+
+async function enviarFicha() {
+  if (!validate()) return;
+  const btn = document.getElementById('btn-enviar');
+  btn.disabled = true; btn.textContent = 'Enviando...';
+  try {
+    const res = await fetch(`${ZAPI_BASE}/send-text`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: GROUP_ID, message: buildMessage() })
+    });
+    const data = await res.json();
+    if (res.ok && (data.zaapId || data.messageId || data.id)) {
+      showToast('✓ Ficha enviada para o grupo!', 'success');
+      resetForm();
+    } else {
+      throw new Error(data.error || JSON.stringify(data));
+    }
+  } catch(e) {
+    showToast('Erro ao enviar: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Enviar Ficha para o Grupo';
+  }
+}
+
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'show ' + type;
+  setTimeout(() => { t.className = ''; }, 3500);
+}
+
+init();
+</script>
+</body>
+</html>
